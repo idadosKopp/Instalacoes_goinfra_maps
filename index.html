@@ -4,7 +4,11 @@
 <meta charset="utf-8">
 <title>Instalações Goinfra - Monitoramento de Faixas</title>
 
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
 <style>
+
 :root{
 --bg-body:#f0f2f5;
 --sidebar-bg:#ffffff;
@@ -58,29 +62,12 @@ cursor:pointer;
 font-weight:bold;
 font-size:11px;
 text-transform:uppercase;
-transition:all 0.2s ease;
 }
 
 .btn-all{background:#2f3640;color:white;grid-column:span 2;}
 .btn1{background:var(--color-rota-1);color:white;}
 .btn2{background:var(--color-rota-2);color:white;}
 .btn3{background:var(--color-rota-3);color:white;}
-
-button:hover{
-opacity:0.9;
-transform:translateY(-1px);
-}
-
-#resumo-rota{
-background:#f8f9fa;
-padding:12px;
-border-radius:6px;
-margin-bottom:15px;
-font-size:13px;
-border:1px dashed #ced4da;
-display:none;
-line-height:1.5;
-}
 
 .card-viagem{
 background:#fff;
@@ -89,39 +76,23 @@ padding:15px;
 border-radius:10px;
 border:1px solid #e1e8ed;
 border-left:6px solid #ccc;
-line-height:1.6;
 }
 
 .rota-1{border-left-color:var(--color-rota-1);}
 .rota-2{border-left-color:var(--color-rota-2);}
 .rota-3{border-left-color:var(--color-rota-3);}
 
-.cidade-nome{
-font-weight:800;
-color:#1e272e;
-font-size:14px;
-}
-
-.info-item{
-font-size:13px;
-color:#636e72;
-display:flex;
-justify-content:space-between;
-}
-
 .tag-faixas{
 display:inline-block;
 margin-top:8px;
 background:#f1f2f6;
-color:#2f3640;
 padding:4px 10px;
 border-radius:20px;
 font-weight:bold;
 font-size:12px;
 }
-</style>
 
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAKq1A4Yy_rlm8jHZIEWyIln1Ld5ePt3b0"></script>
+</style>
 </head>
 
 <body>
@@ -148,7 +119,6 @@ document.body.innerHTML="<h2 style='font-family:Arial;text-align:center;margin-t
 <button class="btn3" onclick="mostrarRota(3)">Rota 3</button>
 </div>
 
-<div id="resumo-rota"></div>
 <div id="lista"></div>
 
 </div>
@@ -161,10 +131,11 @@ var mapa;
 var linhas=[];
 var marcadores=[];
 
-const iconeCaminhao={
-url:"https://cdn-icons-png.flaticon.com/512/1048/1048329.png",
-scaledSize:new google.maps.Size(32,32)
-};
+const iconeCaminhao = L.icon({
+iconUrl: "https://cdn-icons-png.flaticon.com/512/1048/1048329.png",
+iconSize: [30,30],
+iconAnchor: [15,30]
+});
 
 const inicio={cidade:"Goiânia",lat:-16.6864,lng:-49.2643,faixas:0};
 
@@ -211,11 +182,11 @@ inicio,
 
 function init(){
 
-mapa=new google.maps.Map(document.getElementById("map"),{
-zoom:7,
-center:{lat:-15.8,lng:-50.5},
-styles:[{featureType:"poi",stylers:[{visibility:"off"}]}]
-});
+mapa=L.map('map').setView([-15.8,-50.5],7);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+maxZoom:18
+}).addTo(mapa);
 
 }
 
@@ -236,26 +207,14 @@ return R*2*Math.atan2(Math.sqrt(aa),Math.sqrt(1-aa));
 
 }
 
-function formatarTempo(horas){
-
-const totalMin=Math.round(horas*60);
-const h=Math.floor(totalMin/60);
-const m=totalMin%60;
-
-return `${h.toString().padStart(2,"0")}h ${m.toString().padStart(2,"0")}min`;
-
-}
-
 function limpar(){
 
-linhas.forEach(l=>l.setMap(null));
-marcadores.forEach(m=>m.setMap(null));
+linhas.forEach(l=>mapa.removeLayer(l));
+marcadores.forEach(m=>mapa.removeLayer(m));
 
 linhas=[];
 marcadores=[];
-
 document.getElementById("lista").innerHTML="";
-document.getElementById("resumo-rota").style.display="none";
 
 }
 
@@ -265,9 +224,6 @@ limpar();
 
 const cores={1:"#045a28",2:"#d49204",3:"#1509bd"};
 
-let totalFaixas=0;
-let totalKm=0;
-
 for(let r in rotas){
 
 if(n!=0 && r!=n) continue;
@@ -276,12 +232,9 @@ const cidades=rotas[r];
 
 cidades.forEach((c,i)=>{
 
-const marker=new google.maps.Marker({
-position:{lat:c.lat,lng:c.lng},
-map:mapa,
-title:c.cidade,
-icon:iconeCaminhao
-});
+var marker=L.marker([c.lat,c.lng],{icon:iconeCaminhao})
+.addTo(mapa)
+.bindTooltip(c.cidade,{permanent:false,direction:"top"});
 
 marcadores.push(marker);
 
@@ -290,26 +243,21 @@ if(i>0){
 const ant=cidades[i-1];
 
 const km=calcularDistancia(ant,c);
-const tempo=formatarTempo(km/80);
 
-totalFaixas+=c.faixas;
-totalKm+=km;
-
-const linha=new google.maps.Polyline({
-path:[{lat:ant.lat,lng:ant.lng},{lat:c.lat,lng:c.lng}],
-strokeColor:cores[r],
-strokeWeight:4,
-strokeOpacity:0.8,
-map:mapa
-});
+const linha=L.polyline([
+[ant.lat,ant.lng],
+[c.lat,c.lng]
+],{
+color:cores[r],
+weight:4
+}).addTo(mapa);
 
 linhas.push(linha);
 
 document.getElementById("lista").innerHTML+=`
 <div class="card-viagem rota-${r}">
-<div class="cidade-nome">${ant.cidade} ➔ ${c.cidade}</div>
-<div class="info-item"><span>Distância:</span><b>${km.toFixed(1)} km</b></div>
-<div class="info-item"><span>Tempo de Estrada:</span><b>${tempo}</b></div>
+<b>${ant.cidade} ➔ ${c.cidade}</b><br>
+Distância: ${km.toFixed(1)} km<br>
 <div class="tag-faixas">🛣️ ${c.faixas} faixas</div>
 </div>
 `;
@@ -320,23 +268,9 @@ document.getElementById("lista").innerHTML+=`
 
 }
 
-if(n!=0){
-
-const resumo=document.getElementById("resumo-rota");
-
-resumo.style.display="block";
-
-resumo.innerHTML=`
-<strong>Resumo Rota ${n}</strong><br>
-Total de Faixas: ${totalFaixas}<br>
-Distância Total: ${totalKm.toFixed(1)} km
-`;
-
 }
 
-}
-
-google.maps.event.addDomListener(window,'load',init);
+window.onload=init;
 
 </script>
 
