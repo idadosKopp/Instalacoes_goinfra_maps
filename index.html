@@ -218,6 +218,22 @@ return R*2*Math.atan2(Math.sqrt(aa),Math.sqrt(1-aa));
 
 }
 
+function formatarTempo(km){
+
+const velocidade = 80;
+
+const horas = km / velocidade;
+
+const totalMin = Math.round(horas * 60);
+
+const h = Math.floor(totalMin / 60);
+
+const m = totalMin % 60;
+
+return `${h}h ${m}min`;
+
+}
+
 function limpar(){
 
 linhas.forEach(l=>mapa.removeLayer(l));
@@ -254,7 +270,7 @@ if(i>0){
 const ant=cidades[i-1];
 
 const km=calcularDistancia(ant,c);
-
+const tempo = formatarTempo(km);
 const linha=L.polyline([
 [ant.lat,ant.lng],
 [c.lat,c.lng]
@@ -269,6 +285,7 @@ document.getElementById("lista").innerHTML+=`
 <div class="card-viagem rota-${r}">
 <b>${ant.cidade} ➔ ${c.cidade}</b><br>
 Distância: ${km.toFixed(1)} km<br>
+Tempo estimado: ${tempo}<br>
 <div class="tag-faixas">🛣️ ${c.faixas} faixas</div>
 </div>
 `;
