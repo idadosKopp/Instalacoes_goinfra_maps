@@ -98,11 +98,22 @@ font-size:12px;
 <body>
 
 <script>
-var senha = prompt("Digite a senha para acessar o painel:");
 
-if(senha !== "go@2026fra"){
-document.body.innerHTML="<h2 style='font-family:Arial;text-align:center;margin-top:40px'>Acesso negado</h2>";
+const SENHA_CORRETA = "go@2026fra";
+let senha = null;
+
+while (senha !== SENHA_CORRETA) {
+
+    senha = prompt("Digite a senha para acessar o painel:");
+
+    if (senha === null) {
+        alert("Acesso obrigatório. Digite a senha para continuar.");
+    } else if (senha !== SENHA_CORRETA) {
+        alert("Senha incorreta.");
+    }
+
 }
+
 </script>
 
 <div id="sidebar">
