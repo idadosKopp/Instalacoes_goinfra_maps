@@ -35,7 +35,11 @@ z-index:9999;
 display:flex;
 align-items:center;
 justify-content:center;
-background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);
+
+background-image:url("INSTALADAS_GOINFRA.png");
+background-size:cover;
+background-position:center;
+background-repeat:no-repeat;
 }
 
 .login-box{
@@ -179,8 +183,11 @@ font-size:12px;
 <!-- ===== TELA DE LOGIN ===== -->
 <div id="login-overlay">
   <div class="login-box">
-    <h2>Instalações Goinfra</h2>
-    <p>Monitoramento de Rotas e Faixas</p>
+
+  <img src="50 anos sem frase_Menor.png" style="width:200px;margin-bottom:10px;">
+
+  <p>Monitoramento de Rotas Goinfra</p>
+  
     <input type="password" id="inputSenha" placeholder="Digite a senha" autofocus
            onkeydown="if(event.key==='Enter') validarSenha()">
     <button class="btn-login" onclick="validarSenha()">Entrar</button>
@@ -332,13 +339,18 @@ function calcularDistancia(a,b){
 }
 
 function formatarTempo(km){
-  const velocidade = 80;
-  const horas = km / velocidade;
-  const totalMin = Math.round(horas * 60);
-  const h = Math.floor(totalMin / 60);
-  const m = totalMin % 60;
+  const velocidadeMedia = 80;
+  const ajusteEstrada = 1.7;
+
+  const horasEstimadas = (km / velocidadeMedia) * ajusteEstrada;
+  const minutos = Math.round(horasEstimadas * 60);
+
+  const h = Math.floor(minutos / 60);
+  const m = minutos % 60;
+
   return `${h}h ${m}min`;
 }
+
 
 function limpar(){
   linhas.forEach(l=>mapa.removeLayer(l));
