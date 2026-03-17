@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GOINFRA — Acesso</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0e1a;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(0, 120, 255, 0.06) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 120, 255, 0.06) 1px, transparent 1px);
+            background-size: 40px 40px;
+            animation: gridMove 20s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(40px); }
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(180, 130, 0, 0.1) 0%, transparent 70%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .login-card {
+            position: relative;
+            z-index: 1;
+            background: rgba(15, 20, 35, 0.85);
+            border: 1px solid rgba(0, 120, 255, 0.25);
+            border-radius: 16px;
+            padding: 48px 40px;
+            width: 380px;
+            backdrop-filter: blur(20px);
+            box-shadow:
+                0 0 0 1px rgba(0, 120, 255, 0.1),
+                0 20px 60px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            animation: cardIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(30px) scale(0.95); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .logo-area { text-align: center; margin-bottom: 36px; }
+
+        .logo-img {
+            width: 260px;
+            max-width: 100%;
+            margin-bottom: 14px;
+            filter: drop-shadow(0 0 18px rgba(180, 130, 0, 0.35));
+        }
+
+        .logo-area p {
+            font-size: 11px;
+            color: rgba(255,255,255,0.45);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-top: 2px;
+            font-weight: 500;
+        }
+
+        .input-group { margin-bottom: 20px; }
+
+        .input-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.45);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 13px 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .input-group input:focus {
+            border-color: rgba(0, 120, 255, 0.6);
+            background: rgba(0, 120, 255, 0.08);
+            box-shadow: 0 0 0 3px rgba(0, 120, 255, 0.15);
+        }
+
+        .input-group input::placeholder { color: rgba(255,255,255,0.2); }
+
+        .btn-entrar {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #0055cc, #0078ff);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+            box-shadow: 0 4px 20px rgba(0, 120, 255, 0.3);
+        }
+
+        .btn-entrar:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 30px rgba(0, 120, 255, 0.5);
+        }
+
+        .btn-entrar:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .erro {
+            display: none;
+            background: rgba(231, 76, 60, 0.15);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+            border-radius: 6px;
+            padding: 10px 14px;
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 14px;
+            text-align: center;
+        }
+
+        .versao {
+            text-align: center;
+            font-size: 10px;
+            color: rgba(255,255,255,0.12);
+            margin-top: 28px;
+            letter-spacing: 1px;
+        }
+
+        .loading-dots::after {
+            content: '';
+            animation: dots 1s steps(3, end) infinite;
+        }
+        @keyframes dots {
+            0%   { content: ''; }
+            33%  { content: '.'; }
+            66%  { content: '..'; }
+            100% { content: '...'; }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="logo-area">
+            <img src="50 ANOS_COR BRANCA (002).png" alt="KOPP 50 anos" class="logo-img">
+            <p>Instalações Goinfra</p>
+        </div>
+
+        <div class="input-group">
+            <label>Senha de Acesso</label>
+            <input type="password" id="senha" placeholder="••••••••"
+                   onkeydown="if(event.key==='Enter') verificar()">
+        </div>
+
+        <button class="btn-entrar" id="btnEntrar" onclick="verificar()">Entrar →</button>
+
+        <div class="erro" id="erroMsg">⚠️ Senha incorreta. Tente novamente.</div>
+
+        <div class="versao">GOINFRA © 2025 — v2.0</div>
+    </div>
+
+    <script>
+        // Hash SHA-256 da senha (a senha em texto puro nunca fica aqui)
+        var HASH_CORRETO = 'd7b8ac2be0a30ba5e9959ea20ebc324c26cf76b6fc7b93639da04a0b9221c453';
+
+        // Gera SHA-256 usando Web Crypto API nativa do browser
+        async function sha256(texto) {
+            var encoder = new TextEncoder();
+            var data = encoder.encode(texto);
+            var hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            var hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(function(b) {
+                return b.toString(16).padStart(2, '0');
+            }).join('');
+        }
+
+        async function verificar() {
+            var digitada = document.getElementById('senha').value;
+            var erro     = document.getElementById('erroMsg');
+            var btn      = document.getElementById('btnEntrar');
+
+            if (!digitada) return;
+
+            // Desabilita botão enquanto computa
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading-dots">Verificando</span>';
+
+            var hash = await sha256(digitada);
+
+            if (hash === HASH_CORRETO) {
+                sessionStorage.setItem('autenticado', 'true');
+                window.location.href = 'index.html';
+            } else {
+                erro.style.display = 'block';
+                document.getElementById('senha').value = '';
+                document.getElementById('senha').focus();
+                btn.disabled = false;
+                btn.innerHTML = 'Entrar →';
+                setTimeout(function() { erro.style.display = 'none'; }, 3000);
+            }
+        }
+
+        // Se já autenticado, redireciona direto
+        if (sessionStorage.getItem('autenticado') === 'true') {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

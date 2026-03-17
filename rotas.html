@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GOINFRA — Rotas</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="js/auth.js"></script>
+    <style>
+        /* ---- Ajustes específicos da página de rotas ---- */
+        .filtros-rotas {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+        .filtros-rotas-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .filtro-item-rota {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex: 1;
+            min-width: 160px;
+        }
+        .filtro-item-rota label {
+            font-size: 10px;
+            font-weight: 600;
+            color: rgba(232,237,245,0.35);
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+        }
+        .filtro-item-rota select {
+            width: 100%;
+            padding: 8px 10px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            color: #e8edf5;
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+        .filtro-item-rota select:focus {
+            border-color: rgba(0,120,255,0.5);
+            background: rgba(0,120,255,0.07);
+        }
+        .filtro-item-rota select option { background: #141c2e; }
+        .btn-limpar-rota {
+            padding: 8px 14px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            color: rgba(232,237,245,0.5);
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.15s;
+            align-self: flex-end;
+            white-space: nowrap;
+        }
+        .btn-limpar-rota:hover { border-color: #ff4757; color: #ff4757; }
+
+        /* Badge de região */
+        .badge-norte    { background: rgba(0,208,132,0.15); color: #00d084; }
+        .badge-centro   { background: rgba(0,120,255,0.15); color: #0078ff; }
+        .badge-sul      { background: rgba(255,107,53,0.15); color: #ff6b35; }
+        .badge-sudoeste { background: rgba(255,71,87,0.15);  color: #ff4757; }
+        .badge-sudeste  { background: rgba(255,211,42,0.15); color: #ffd32a; }
+
+        .badge-solar       { background: rgba(255,211,42,0.15); color: #ffd32a; }
+        .badge-convencional { background: rgba(100,120,180,0.15); color: #8899cc; }
+    </style>
+</head>
+<body>
+
+<div class="loader" id="loader">
+    <div class="loader-ring"></div>
+    CARREGANDO DADOS...
+</div>
+
+<div class="app-shell">
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="brand"><span>🛣️</span> GOINFRA</div>
+            <div class="sub">Monitoramento</div>
+        </div>
+        <nav>
+            <a href="index.html"><span class="nav-icon">📊</span> Painel</a>
+            <a href="rotas.html" class="active"><span class="nav-icon">🗺️</span> Rotas</a>
+        </nav>
+        <div class="sidebar-footer">
+            <a class="sair" onclick="sair()">⏻ Sair</a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="page-header">
+            <div>
+                <h1>🗺️ Planejamento de Rotas</h1>
+                <p>Próxima NIS · Rota otimizada · Distâncias</p>
+            </div>
+        </div>
+
+        <div class="page-body" style="padding-top:12px;">
+
+            <!-- FILTROS EMPILHADOS -->
+            <div class="filtros-rotas">
+                <!-- Linha 1: NIS + Equipe Civil + Equipe Elétrica -->
+                <div class="filtros-rotas-row">
+                    <div class="filtro-item-rota">
+                        <label>NIS</label>
+                        <select id="filtroMapaNIS"></select>
+                    </div>
+                    <div class="filtro-item-rota">
+                        <label>Equipe Civil</label>
+                        <select id="filtroMapaCivil"></select>
+                    </div>
+                </div>
+                <!-- Linha 2: Elétrica + Região + Energização -->
+                <div class="filtros-rotas-row">
+                    <div class="filtro-item-rota">
+                        <label>Equipe Elétrica</label>
+                        <select id="filtroMapaEletro"></select>
+                    </div>
+                    <div class="filtro-item-rota">
+                        <label>Região</label>
+                        <select id="filtroMapaRegiao">
+                            <option value="">Todas as regiões</option>
+                            <option value="NORTE">🟢 Norte</option>
+                            <option value="CENTRO">🔵 Centro</option>
+                            <option value="SUL">🟠 Sul</option>
+                            <option value="SUDOESTE">🔴 Sudoeste</option>
+                            <option value="SUDESTE">🟡 Sudeste</option>
+                        </select>
+                    </div>
+                    <div class="filtro-item-rota">
+                        <label>Energização</label>
+                        <select id="filtroMapaEnergia">
+                            <option value="">☀️⚡ Todas</option>
+                            <option value="SOLAR">☀️ Solar</option>
+                            <option value="CONVENCIONAL">⚡ Convencional</option>
+                        </select>
+                    </div>
+                    <button class="btn-limpar-rota" onclick="limparFiltrosMapa()">✕ Limpar</button>
+                </div>
+            </div>
+
+            <div class="rotas-layout">
+                <!-- Painel lateral -->
+                <div class="rotas-sidebar">
+
+                    <!-- Próxima NIS -->
+                    <div class="nis-destaque">
+                        <div class="label">⭐ Próxima NIS</div>
+                        <div class="valor" id="nisNumero">—</div>
+                        <div class="info" id="nisMunicipio">—</div>
+                        <div class="info" style="margin-top:3px;" id="nisEquip">—</div>
+                        <div class="distancia">
+                            <div><strong id="nisPendentes">—</strong><br><span style="font-size:9px;color:var(--text-muted);">PENDENTES</span></div>
+                            <div><strong id="nisDistTotal">—</strong><br><span style="font-size:9px;color:var(--text-muted);">ROTA TOTAL</span></div>
+                        </div>
+                        <div style="font-size:10px; color:var(--text-muted); margin-top:6px;" id="nisDistProx"></div>
+                    </div>
+
+                    <!-- Por Região -->
+                    <div class="mini-card">
+                        <h4>📍 Por Região</h4>
+                        <table id="tabelaRegiao">
+                            <thead><tr><th>Região</th><th>Total</th><th>Online</th></tr></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+
+                    <!-- Por Energização -->
+                    <div class="mini-card">
+                        <h4>⚡ Energização</h4>
+                        <table id="tabelaEnergia">
+                            <thead><tr><th>Tipo</th><th>Total</th><th>Online</th></tr></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+
+                    <!-- Por Município -->
+                    <div class="mini-card">
+                        <h4>🏙️ Por Município</h4>
+                        <table id="tabelaCidades">
+                            <thead><tr><th>Rodovia</th><th>Município</th><th>Qtd</th><th>%</th></tr></thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+
+                    <!-- Legenda -->
+                    <div class="mini-card">
+                        <h4>🔑 Legenda</h4>
+                        <div style="display:flex;flex-direction:column;gap:7px;font-size:11px;color:var(--text-secondary);">
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <div style="width:12px;height:12px;background:#ffd32a;border-radius:50%;flex-shrink:0;box-shadow:0 0 8px #ffd32a;"></div>
+                                Próxima NIS (visitar)
+                            </div>
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <div style="width:12px;height:12px;background:#ff4757;border-radius:50%;flex-shrink:0;"></div>
+                                NIS Pendente
+                            </div>
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <div style="width:12px;height:12px;background:#00d084;border-radius:50%;flex-shrink:0;"></div>
+                                NIS Online ✅
+                            </div>
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <div style="width:16px;height:2px;background:#0078ff;flex-shrink:0;border-radius:2px;margin:0 2px;"></div>
+                                Rota otimizada
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Mapa -->
+                <div class="rotas-map-area">
+                    <div id="mapa"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="js/carregar_excel.js"></script>
+<script src="js/regioes_goias.js"></script>
+<script src="js/mapa.js"></script>
+<script>
+    carregarDados(inicializarMapa);
+</script>
+</body>
+</html>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GOINFRA — Painel</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="js/auth.js"></script>
+</head>
+<body>
+
+<div class="loader" id="loader">
+    <div class="loader-ring"></div>
+    CARREGANDO DADOS...
+</div>
+
+<div class="app-shell">
+
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="brand"><span>🛣️</span> GOINFRA</div>
+            <div class="sub">Monitoramento</div>
+        </div>
+        <nav>
+            <a href="index.html" class="active"><span class="nav-icon">📊</span> Painel</a>
+            <a href="rotas.html"><span class="nav-icon">🗺️</span> Rotas</a>
+        </nav>
+        <div class="sidebar-footer">
+            <a class="sair" onclick="sair()">⏻ Sair</a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="page-header">
+            <div>
+                <h1>📊 Painel Geral</h1>
+                <p>Checklist de instalação e status das NIS</p>
+            </div>
+        </div>
+
+        <div class="page-body">
+
+            <!-- 5 Cards -->
+            <div class="cards-grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));">
+                <div class="card" style="--card-accent:#0078ff;--card-color:#0078ff;">
+                    <div class="card-icon">📦</div>
+                    <div class="card-value" id="cardTotal">—</div>
+                    <div class="card-label">Total de NIS</div>
+                </div>
+                <div class="card" style="--card-accent:#00d084;--card-color:#00d084;">
+                    <div class="card-icon">✅</div>
+                    <div class="card-value" id="cardOnline">—</div>
+                    <div class="card-label">Online</div>
+                </div>
+                <div class="card" style="--card-accent:#ffd32a;--card-color:#ffd32a;">
+                    <div class="card-icon">☀️</div>
+                    <div class="card-value" id="cardSolar">—</div>
+                    <div class="card-label">Energia Solar</div>
+                </div>
+                <div class="card" style="--card-accent:#ff4757;--card-color:#ff4757;">
+                    <div class="card-icon">⏳</div>
+                    <div class="card-value" id="cardPendentes">—</div>
+                    <div class="card-label">Pendentes</div>
+                </div>
+                <div class="card" style="--card-accent:#00d084;--card-color:#00d084;">
+                    <div class="card-icon">🏁</div>
+                    <div class="card-value" id="cardConcluidos">—</div>
+                    <div class="card-label">Concluídos</div>
+                </div>
+            </div>
+
+            <!-- Barras de Progresso por Etapa -->
+            <div class="progresso-section">
+                <h3>📈 Progresso por Etapa</h3>
+                <div class="etapas-grid">
+
+                    <div class="etapa-item">
+                        <div class="etapa-header"><span class="etapa-nome">Furação</span><span class="etapa-pct" id="pct_FURACAO_REALIZADO">0%</span></div>
+                        <div class="barra-bg"><div class="barra-fill" id="bar_FURACAO_REALIZADO" style="width:0%"></div></div>
+                    </div>
+                    <div class="etapa-item">
+                        <div class="etapa-header"><span class="etapa-nome">Fixação</span><span class="etapa-pct" id="pct_FIXACAO_POSTES_REALIZADO">0%</span></div>
+                        <div class="barra-bg"><div class="barra-fill" id="bar_FIXACAO_POSTES_REALIZADO" style="width:0%"></div></div>
+                    </div>
+                    <div class="etapa-item">
+                        <div class="etapa-header"><span class="etapa-nome">Estruturas</span><span class="etapa-pct" id="pct_ESTRUTURAS_REALIZADO">0%</span></div>
+                        <div class="barra-bg"><div class="barra-fill" id="bar_ESTRUTURAS_REALIZADO" style="width:0%"></div></div>
+                    </div>
+                    <div class="etapa-item">
+                        <div class="etapa-header"><span class="etapa-nome">Travessia</span><span class="etapa-pct" id="pct_TRAVESSIA_INTERLIGACAO_REALIZADO">0%</span></div>
+                        <div class="barra-bg"><div class="barra-fill" id="bar_TRAVESSIA_INTERLIGACAO_REALIZADO" style="width:0%"></div></div>
+                    </div>
+                    <div class="etapa-item">
+                        <div class="etapa-header"><span class="etapa-nome">Sin. Aérea</span><span class="etapa-pct" id="pct__SIN_AEREA">0%</span></div>
+                        <div class="barra-bg"><div class="barra-fill" id="bar__SIN_AEREA" style="width:0%"></div></div>
+                    </div>
+                    <div class="etapa-item">
+                        <div class="etapa-header"><span class="etapa-nome">Sin. Terrestre</span><span class="etapa-pct" id="pct__SIN_TERRESTRE">0%</span></div>
+                        <div class="barra-bg"><div class="barra-fill" id="bar__SIN_TERRESTRE" style="width:0%"></div></div>
+                    </div>
+                    <div class="etapa-item">
+                        <div class="etapa-header"><span class="etapa-nome">Montagem</span><span class="etapa-pct" id="pct_MONTAGEM_REALIZADO">0%</span></div>
+                        <div class="barra-bg"><div class="barra-fill" id="bar_MONTAGEM_REALIZADO" style="width:0%"></div></div>
+                    </div>
+                    <div class="etapa-item">
+                        <div class="etapa-header">
+                            <span class="etapa-nome">Mont. Estr.</span>
+                            <span class="etapa-pct" id="pct_MONTAGEM_ESTRUTURAL_REALIZADO">0%</span>
+                        </div>
+                        <div class="barra-bg"><div class="barra-fill" id="bar_MONTAGEM_ESTRUTURAL_REALIZADO" style="width:0%"></div></div>
+                    </div>
+                    <div class="etapa-item">
+                        <div class="etapa-header"><span class="etapa-nome">Aferição</span><span class="etapa-pct" id="pct_AFERICAO_REALIZADO">0%</span></div>
+                        <div class="barra-bg"><div class="barra-fill" id="bar_AFERICAO_REALIZADO" style="width:0%"></div></div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Filtros -->
+            <div class="filtros-bar">
+                <div class="filtro-item busca-item">
+                    <label>🔍 Busca</label>
+                    <input type="text" id="busca" placeholder="NIS, município, ID...">
+                </div>
+                <div class="filtro-item">
+                    <label>NI</label>
+                    <select id="filtroNI"></select>
+                </div>
+                <div class="filtro-item">
+                    <label>Situação</label>
+                    <select id="filtroStatus">
+                        <option value="">Todos</option>
+                        <option value="CONCLUIDO">✓ Concluídos</option>
+                        <option value="PENDENTE">⏳ Pendentes</option>
+                    </select>
+                </div>
+                <div class="filtro-item">
+                    <label>Equipe Civil</label>
+                    <select id="filtroEquipeCivil"></select>
+                </div>
+                <div class="filtro-item">
+                    <label>Equipe Elétrica</label>
+                    <select id="filtroEquipeEletro"></select>
+                </div>
+                <div class="filtro-item">
+                    <label>Energização</label>
+                    <select id="filtroEnergia">
+                        <option value="">Todas</option>
+                        <option value="SOLAR">SOLAR</option>
+                        <option value="CONVENCIONAL">CONVENCIONAL</option>
+                    </select>
+                </div>
+                <button class="btn-limpar" onclick="limparFiltros()">✕ Limpar</button>
+            </div>
+
+            <!-- Tabela -->
+            <div class="tabela-wrapper">
+                <div class="tabela-header-bar">
+                    <h3>Registros</h3>
+                    <span class="tabela-count" id="tabelaCount">—</span>
+                </div>
+                <div class="tabela-scroll">
+                    <table id="tabelaCronograma">
+                        <thead>
+                            <tr>
+                                <th>NI</th>
+                                <th>ID Equip.</th>
+                                <th>Município</th>
+                                <th>Energia</th>
+                                <th>Status</th>
+                                <th>Eqp. Civil</th>
+                                <th>Eqp. Elétrica</th>
+                                <th>Furação</th>
+                                <th>Fixação</th>
+                                <th>Estrut.</th>
+                                <th>Travessia</th>
+                                <th>Sin. Aérea</th>
+                                <th>Sin. Terr.</th>
+                                <th>Montagem</th>
+                                <th title="N/A = não se aplica ao equipamento">Mont.Estr.</th>
+                                <th>Aferição</th>
+                                <th>Situação</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script src="js/carregar_excel.js"></script>
+<script src="js/filtros.js"></script>
+<script>
+    carregarDados(inicializarPagina);
+</script>
+</body>
+</html>
